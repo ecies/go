@@ -39,5 +39,5 @@ func main()  {
 }
 ```
 
-[GoDoc]: https://godoc.org/github.com/go-chi/chi
-[GoDoc Widget]: https://godoc.org/github.com/go-chi/chi?status.svg
+[GoDoc]: https://godoc.org/github.com/L11R/eciesgo
+[GoDoc Widget]: https://godoc.org/github.com/L11R/eciesgo?status.svg
