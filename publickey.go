@@ -5,7 +5,7 @@ import (
 	"crypto/elliptic"
 	"crypto/subtle"
 	"encoding/hex"
-	"github.com/L11R/eciesgo/secp256k1"
+	"github.com/fomichev/secp256k1"
 	"github.com/pkg/errors"
 	"math/big"
 )
@@ -21,35 +21,14 @@ func NewPublicKeyFromHex(s string) (*PublicKey, error) {
 		return nil, errors.Wrap(err, "cannot decode hex string")
 	}
 
-	curve := secp256k1.S256()
+	return NewPublicKeyFromBytes(b)
+}
+
+func NewPublicKeyFromBytes(b []byte) (*PublicKey, error) {
+	curve := secp256k1.SECP256K1()
 	switch b[0] {
-	// Not tested, unsupported
-	/*
-		case 0x02, 0x03:
-			if len(b) != 33 {
-				return nil, errors.New("cannot parse public key")
-			}
-
-			x := new(big.Int).SetBytes(b[1:])
-
-			if x.Cmp(curve.Params().P) >= 0 {
-				return nil, errors.New("cannot parse public key")
-			}
-
-			y := new(big.Int).Sqrt(x)
-			y = y.Mul(y, x)
-			y = y.Add(y, curve.Params().B)
-			y = y.Sqrt(y)
-			if r := y.Mod(y, new(big.Int).SetInt64(2)); r.IsInt64() && r.Int64() == 1 {
-				y = y.Neg(y)
-			}
-
-			return &PublicKey{
-				Curve: curve,
-				X:     x,
-				Y:     y,
-			}, nil
-	*/
+	case 0x02, 0x03:
+		return nil, errors.New("compressed public key not supported")
 	case 0x04, 0x06, 0x07:
 		if len(b) != 65 {
 			return nil, errors.New("cannot parse public key")

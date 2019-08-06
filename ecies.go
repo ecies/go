@@ -5,26 +5,21 @@ import (
 	"crypto/aes"
 	"crypto/cipher"
 	"crypto/rand"
-	"github.com/L11R/eciesgo/secp256k1"
+	"github.com/fomichev/secp256k1"
 	"github.com/pkg/errors"
 	"math/big"
 )
 
-func Encrypt(receiverPubhex string, msg []byte) ([]byte, error) {
+// Encrypts a passed message with a receiver public key, returns ciphertext or encryption error
+func Encrypt(pubkey *PublicKey, msg []byte) ([]byte, error) {
 	// Generate ephemeral key
-	dk, err := GenerateKey()
-	if err != nil {
-		return nil, err
-	}
-
-	// Receiver public key in hex
-	rpk, err := NewPublicKeyFromHex(receiverPubhex)
+	ek, err := GenerateKey()
 	if err != nil {
 		return nil, err
 	}
 
 	// Derive common secret
-	cs := dk.ECDH(rpk)
+	cs := ek.ECDH(pubkey)
 
 	// AES encryption
 	block, err := aes.NewCipher(cs)
@@ -46,44 +41,47 @@ func Encrypt(receiverPubhex string, msg []byte) ([]byte, error) {
 	tag := ciphertext[len(ciphertext)-aesgcm.NonceSize():]
 	ciphertext = ciphertext[:len(ciphertext)-len(tag)]
 
-	return bytes.Join([][]byte{dk.PublicKey.Bytes(), nonce, tag, ciphertext}, nil), nil
+	return bytes.Join([][]byte{ek.PublicKey.Bytes(), nonce, tag, ciphertext}, nil), nil
 }
 
-func Decrypt(receiverPrivhex string, msg []byte) ([]byte, error) {
-	// Receiver private key
-	rpk, err := NewPrivateKeyFromHex(receiverPrivhex)
-	if err != nil {
-		return nil, err
+// Decrypts a passed message with a receiver private key, returns plaintext or decryption error
+func Decrypt(privkey *PrivateKey, msg []byte) ([]byte, error) {
+	// Message cannot be less than length of public key (65) + nonce (16) + tag (16)
+	if len(msg) <= (1 + 32 + 32 + 16 + 16) {
+		return nil, errors.New("invalid length of message")
 	}
 
-	// Disposable sender public key
-	dpk := &PublicKey{
-		Curve: secp256k1.S256(),
+	// Ephemeral sender public key
+	ethPubkey := &PublicKey{
+		Curve: secp256k1.SECP256K1(),
 		X:     new(big.Int).SetBytes(msg[1:33]),
 		Y:     new(big.Int).SetBytes(msg[33:65]),
 	}
 
-	ciphertext := msg[65:]
+	// Shift message
+	msg = msg[65:]
 
 	// Derive common secret
-	cs := rpk.ECDH(dpk)
+	cs := privkey.ECDH(ethPubkey)
 
-	// AES Decryption
-	nonce := ciphertext[:16]
-	tag := ciphertext[16:32]
-	ciphertext = bytes.Join([][]byte{ciphertext[32:], tag}, nil)
+	// AES decryption part
+	nonce := msg[:16]
+	tag := msg[16:32]
+
+	// Create Golang-accepted ciphertext
+	ciphertext := bytes.Join([][]byte{msg[32:], tag}, nil)
 
 	block, err := aes.NewCipher(cs)
 	if err != nil {
 		return nil, errors.Wrap(err, "cannot create new aes block")
 	}
 
-	aesgcm, err := cipher.NewGCMWithNonceSize(block, 16)
+	gcm, err := cipher.NewGCMWithNonceSize(block, 16)
 	if err != nil {
-		return nil, errors.Wrap(err, "cannot create aes gcm")
+		return nil, errors.Wrap(err, "cannot create gcm cipher")
 	}
 
-	plaintext, err := aesgcm.Open(nil, nonce, ciphertext, nil)
+	plaintext, err := gcm.Open(nil, nonce, ciphertext, nil)
 	if err != nil {
 		return nil, errors.Wrap(err, "cannot decrypt ciphertext")
 	}

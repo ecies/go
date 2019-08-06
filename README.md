@@ -18,20 +18,20 @@ import (
 	"log"
 )
 
-func main()  {
+func main() {
 	k, err := eciesgo.GenerateKey()
 	if err != nil {
 		panic(err)
 	}
 	log.Println("key pair has been generated")
 
-	ciphertext, err := eciesgo.Encrypt(k.PublicKey.Hex(), []byte("THIS IS THE TEST"))
+	ciphertext, err := eciesgo.Encrypt(k.PublicKey, []byte("THIS IS THE TEST"))
 	if err != nil {
 		panic(err)
 	}
 	log.Printf("plaintext encrypted: %v\n", ciphertext)
 
-	plaintext, err := eciesgo.Decrypt(k.Hex(), ciphertext)
+	plaintext, err := eciesgo.Decrypt(k, ciphertext)
 	if err != nil {
 		panic(err)
 	}
