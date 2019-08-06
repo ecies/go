@@ -38,3 +38,6 @@ func main()  {
 	log.Printf("ciphertext decrypted: %s\n", string(plaintext))
 }
 ```
+
+[GoDoc]: https://godoc.org/github.com/go-chi/chi
+[GoDoc Widget]: https://godoc.org/github.com/go-chi/chi?status.svg
