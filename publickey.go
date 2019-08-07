@@ -28,7 +28,38 @@ func NewPublicKeyFromBytes(b []byte) (*PublicKey, error) {
 	curve := secp256k1.SECP256K1()
 	switch b[0] {
 	case 0x02, 0x03:
-		return nil, errors.New("compressed public key not supported")
+		if len(b) != 33 {
+			return nil, errors.New("cannot parse public key")
+		}
+
+		x := new(big.Int).SetBytes(b[1:])
+		ybit := x.Bit(0)
+
+		if x.Cmp(curve.Params().P) >= 0 {
+			return nil, errors.New("cannot parse public key")
+		}
+
+		// y^2 = x^3 + b
+		// y   = sqrt(x^3 + b)
+		var y, x3b big.Int
+		x3b.Mul(x, x)
+		x3b.Mul(&x3b, x)
+		x3b.Add(&x3b, curve.Params().B)
+		x3b.Mod(&x3b, curve.Params().P)
+		y.ModSqrt(&x3b, curve.Params().P)
+
+		if y.Bit(0) != ybit {
+			y.Sub(curve.Params().P, &y)
+		}
+		if y.Bit(0) != ybit {
+			return nil, errors.New("incorrectly encoded X and Y bit")
+		}
+
+		return &PublicKey{
+			Curve: curve,
+			X:     x,
+			Y:     &y,
+		}, nil
 	case 0x04, 0x06, 0x07:
 		if len(b) != 65 {
 			return nil, errors.New("cannot parse public key")
@@ -42,10 +73,8 @@ func NewPublicKeyFromBytes(b []byte) (*PublicKey, error) {
 		}
 
 		if b[0] == 0x06 || b[0] == 0x07 {
-			if r := y.Mod(y, new(big.Int).SetInt64(2)); r.IsInt64() {
-				if (r.Int64() != 0) != (b[0] == 0x07) {
-					return nil, errors.New("cannot parse public key")
-				}
+			if (y.Bit(0) != 0) != (b[0] == 0x07) {
+				return nil, errors.New("cannot parse public key")
 			}
 		}
 
@@ -65,7 +94,21 @@ func NewPublicKeyFromBytes(b []byte) (*PublicKey, error) {
 }
 
 func (k *PublicKey) Bytes() []byte {
-	return bytes.Join([][]byte{{0x04}, k.X.Bytes(), k.Y.Bytes()}, nil)
+	x := k.X.Bytes()
+	if len(x) < 32 {
+		for i := 0; i < 32-len(x); i++ {
+			x = append([]byte{0}, x...)
+		}
+	}
+
+	y := k.Y.Bytes()
+	if len(y) < 32 {
+		for i := 0; i < 32-len(y); i++ {
+			y = append([]byte{0}, y...)
+		}
+	}
+
+	return bytes.Join([][]byte{{0x04}, x, y}, nil)
 }
 
 func (k *PublicKey) Hex() string {

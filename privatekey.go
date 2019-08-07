@@ -65,19 +65,32 @@ func (k *PrivateKey) Hex() string {
 	return hex.EncodeToString(k.D.Bytes())
 }
 
-func (k *PrivateKey) ECDH(pub *PublicKey) []byte {
-	sx, _ := pub.Curve.ScalarMult(pub.X, pub.Y, k.D.Bytes())
+func (k *PrivateKey) ECDH(pub *PublicKey) ([]byte, error) {
+	if pub == nil {
+		return nil, errors.New("public key is empty")
+	}
+
+	sx, sy := pub.Curve.ScalarMult(pub.X, pub.Y, k.D.Bytes())
 
 	// SHA-256 KDF
 	h := sha256.New()
-	if r := new(big.Int).Mod(sx, new(big.Int).SetInt64(2)); r.IsInt64() && r.Int64() != 0 {
+
+	// If odd
+	if sy.Bit(0) != 0 {
 		h.Write([]byte{0x03})
+	// If even
 	} else {
 		h.Write([]byte{0x02})
 	}
 
+	// Sometimes shared secret is less than 32 bytes; Big Endian
+	length := len(pub.Curve.Params().P.Bytes())
+	for i := 0; i < length-len(sx.Bytes()); i++ {
+		h.Write([]byte{0})
+	}
+
 	h.Write(sx.Bytes())
-	return h.Sum(nil)
+	return h.Sum(nil), nil
 }
 
 func (k *PrivateKey) Equals(priv *PrivateKey) bool {

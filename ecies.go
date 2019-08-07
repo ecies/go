@@ -19,7 +19,10 @@ func Encrypt(pubkey *PublicKey, msg []byte) ([]byte, error) {
 	}
 
 	// Derive common secret
-	cs := ek.ECDH(pubkey)
+	cs, err := ek.ECDH(pubkey)
+	if err != nil {
+		return nil, err
+	}
 
 	// AES encryption
 	block, err := aes.NewCipher(cs)
@@ -62,7 +65,10 @@ func Decrypt(privkey *PrivateKey, msg []byte) ([]byte, error) {
 	msg = msg[65:]
 
 	// Derive common secret
-	cs := privkey.ECDH(ethPubkey)
+	cs, err := privkey.ECDH(ethPubkey)
+	if err != nil {
+		return nil, err
+	}
 
 	// AES decryption part
 	nonce := msg[:16]
