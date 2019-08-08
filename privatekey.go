@@ -75,11 +75,10 @@ func (k *PrivateKey) ECDH(pub *PublicKey) ([]byte, error) {
 	// SHA-256 KDF
 	h := sha256.New()
 
-	// If odd
-	if sy.Bit(0) != 0 {
+	if sy.Bit(0) != 0 { // If odd
 		h.Write([]byte{0x03})
-	// If even
-	} else {
+
+	} else { // If even
 		h.Write([]byte{0x02})
 	}
 

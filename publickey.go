@@ -33,7 +33,6 @@ func NewPublicKeyFromBytes(b []byte) (*PublicKey, error) {
 		}
 
 		x := new(big.Int).SetBytes(b[1:])
-		ybit := x.Bit(0)
 
 		if x.Cmp(curve.Params().P) >= 0 {
 			return nil, errors.New("cannot parse public key")
@@ -48,10 +47,10 @@ func NewPublicKeyFromBytes(b []byte) (*PublicKey, error) {
 		x3b.Mod(&x3b, curve.Params().P)
 		y.ModSqrt(&x3b, curve.Params().P)
 
-		if y.Bit(0) != ybit {
+		if b[0] == 0x02 {
 			y.Sub(curve.Params().P, &y)
 		}
-		if y.Bit(0) != ybit {
+		if y.Bit(0) == 0x02 {
 			return nil, errors.New("incorrectly encoded X and Y bit")
 		}
 
