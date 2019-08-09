@@ -26,7 +26,7 @@ func NewPublicKeyFromHex(s string) (*PublicKey, error) {
 	return NewPublicKeyFromBytes(b)
 }
 
-// NewPublicKeyFromHex decodes public key raw bytes and returns PublicKey instance;
+// NewPublicKeyFromBytes decodes public key raw bytes and returns PublicKey instance;
 // Supports both compressed and uncompressed public keys
 func NewPublicKeyFromBytes(b []byte) (*PublicKey, error) {
 	curve := secp256k1.SECP256K1()
