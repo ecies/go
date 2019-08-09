@@ -1,15 +1,15 @@
 # eciesgo
 
-[![GoDoc Widget]][GoDoc]
+[![godoc widget]][godoc]
 
 Elliptic Curve Integrated Encryption Scheme for secp256k1, written in Go with **minimal** dependencies.
 
 This is the Go version of [eciespy](https://github.com/kigawas/eciespy) with a built-in class-like secp256k1 API, you may go there for detailed documentation of the mechanism under the hood.
 
-# Install
+## Install
 `go get github.com/L11R/eciesgo`
 
-# Quick Start
+## Quick Start
 ```go
 package main
 
@@ -39,5 +39,5 @@ func main() {
 }
 ```
 
-[GoDoc]: https://godoc.org/github.com/L11R/eciesgo
-[GoDoc Widget]: https://godoc.org/github.com/L11R/eciesgo?status.svg
+[godoc]: https://godoc.org/github.com/L11R/eciesgo
+[godoc widget]: https://godoc.org/github.com/L11R/eciesgo?status.svg
