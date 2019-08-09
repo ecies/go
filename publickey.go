@@ -10,11 +10,13 @@ import (
 	"math/big"
 )
 
+// PublicKey instance with nested elliptic.Curve interface (secp256k1 instance in our case)
 type PublicKey struct {
 	elliptic.Curve
 	X, Y *big.Int
 }
 
+// NewPublicKeyFromHex decodes hex form of public key raw bytes and returns PublicKey instance
 func NewPublicKeyFromHex(s string) (*PublicKey, error) {
 	b, err := hex.DecodeString(s)
 	if err != nil {
@@ -24,8 +26,11 @@ func NewPublicKeyFromHex(s string) (*PublicKey, error) {
 	return NewPublicKeyFromBytes(b)
 }
 
+// NewPublicKeyFromHex decodes public key raw bytes and returns PublicKey instance;
+// Supports both compressed and uncompressed public keys
 func NewPublicKeyFromBytes(b []byte) (*PublicKey, error) {
 	curve := secp256k1.SECP256K1()
+
 	switch b[0] {
 	case 0x02, 0x03:
 		if len(b) != 33 {
@@ -99,6 +104,8 @@ func NewPublicKeyFromBytes(b []byte) (*PublicKey, error) {
 	}
 }
 
+// Bytes returns public key raw bytes;
+// Could be optionally compressed by dropping Y part
 func (k *PublicKey) Bytes(compressed bool) []byte {
 	x := k.X.Bytes()
 	if len(x) < 32 {
@@ -108,11 +115,13 @@ func (k *PublicKey) Bytes(compressed bool) []byte {
 	}
 
 	if compressed {
-		if k.Y.Bit(0) != 0 { // If odd
+		// If odd
+		if k.Y.Bit(0) != 0 {
 			return bytes.Join([][]byte{{0x03}, x}, nil)
-		} else { // If even
-			return bytes.Join([][]byte{{0x02}, x}, nil)
 		}
+
+		// If even
+		return bytes.Join([][]byte{{0x02}, x}, nil)
 	}
 
 	y := k.Y.Bytes()
@@ -125,10 +134,12 @@ func (k *PublicKey) Bytes(compressed bool) []byte {
 	return bytes.Join([][]byte{{0x04}, x, y}, nil)
 }
 
+// Hex returns public key bytes in hex form
 func (k *PublicKey) Hex(compressed bool) string {
 	return hex.EncodeToString(k.Bytes(compressed))
 }
 
+// Equals compares two public keys with constant time (to resist timing attacks)
 func (k *PublicKey) Equals(pub *PublicKey) bool {
 	if subtle.ConstantTimeCompare(k.X.Bytes(), pub.X.Bytes()) == 1 &&
 		subtle.ConstantTimeCompare(k.Y.Bytes(), pub.Y.Bytes()) == 1 {

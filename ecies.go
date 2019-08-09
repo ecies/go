@@ -10,7 +10,7 @@ import (
 	"math/big"
 )
 
-// Encrypts a passed message with a receiver public key, returns ciphertext or encryption error
+// Encrypt encrypts a passed message with a receiver public key, returns ciphertext or encryption error
 func Encrypt(pubkey *PublicKey, msg []byte) ([]byte, error) {
 	// Generate ephemeral key
 	ek, err := GenerateKey()
@@ -18,14 +18,14 @@ func Encrypt(pubkey *PublicKey, msg []byte) ([]byte, error) {
 		return nil, err
 	}
 
-	// Derive common secret
-	cs, err := ek.ECDH(pubkey)
+	// Derive shared secret
+	ss, err := ek.ECDH(pubkey)
 	if err != nil {
 		return nil, err
 	}
 
 	// AES encryption
-	block, err := aes.NewCipher(cs)
+	block, err := aes.NewCipher(ss)
 	if err != nil {
 		return nil, errors.Wrap(err, "cannot create new aes block")
 	}
@@ -47,7 +47,7 @@ func Encrypt(pubkey *PublicKey, msg []byte) ([]byte, error) {
 	return bytes.Join([][]byte{ek.PublicKey.Bytes(false), nonce, tag, ciphertext}, nil), nil
 }
 
-// Decrypts a passed message with a receiver private key, returns plaintext or decryption error
+// Decrypt decrypts a passed message with a receiver private key, returns plaintext or decryption error
 func Decrypt(privkey *PrivateKey, msg []byte) ([]byte, error) {
 	// Message cannot be less than length of public key (65) + nonce (16) + tag (16)
 	if len(msg) <= (1 + 32 + 32 + 16 + 16) {
@@ -64,8 +64,8 @@ func Decrypt(privkey *PrivateKey, msg []byte) ([]byte, error) {
 	// Shift message
 	msg = msg[65:]
 
-	// Derive common secret
-	cs, err := privkey.ECDH(ethPubkey)
+	// Derive shared secret
+	ss, err := privkey.ECDH(ethPubkey)
 	if err != nil {
 		return nil, err
 	}
@@ -77,7 +77,7 @@ func Decrypt(privkey *PrivateKey, msg []byte) ([]byte, error) {
 	// Create Golang-accepted ciphertext
 	ciphertext := bytes.Join([][]byte{msg[32:], tag}, nil)
 
-	block, err := aes.NewCipher(cs)
+	block, err := aes.NewCipher(ss)
 	if err != nil {
 		return nil, errors.Wrap(err, "cannot create new aes block")
 	}
