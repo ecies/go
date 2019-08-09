@@ -44,7 +44,7 @@ func Encrypt(pubkey *PublicKey, msg []byte) ([]byte, error) {
 	tag := ciphertext[len(ciphertext)-aesgcm.NonceSize():]
 	ciphertext = ciphertext[:len(ciphertext)-len(tag)]
 
-	return bytes.Join([][]byte{ek.PublicKey.Bytes(), nonce, tag, ciphertext}, nil), nil
+	return bytes.Join([][]byte{ek.PublicKey.Bytes(false), nonce, tag, ciphertext}, nil), nil
 }
 
 // Decrypts a passed message with a receiver private key, returns plaintext or decryption error

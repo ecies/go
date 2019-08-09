@@ -33,6 +33,13 @@ func NewPublicKeyFromBytes(b []byte) (*PublicKey, error) {
 		}
 
 		x := new(big.Int).SetBytes(b[1:])
+		var ybit uint
+		switch b[0] {
+		case 0x02:
+			ybit = 0
+		case 0x03:
+			ybit = 1
+		}
 
 		if x.Cmp(curve.Params().P) >= 0 {
 			return nil, errors.New("cannot parse public key")
@@ -47,10 +54,10 @@ func NewPublicKeyFromBytes(b []byte) (*PublicKey, error) {
 		x3b.Mod(&x3b, curve.Params().P)
 		y.ModSqrt(&x3b, curve.Params().P)
 
-		if b[0] == 0x02 {
+		if y.Bit(0) != ybit {
 			y.Sub(curve.Params().P, &y)
 		}
-		if y.Bit(0) == 0x02 {
+		if y.Bit(0) != ybit {
 			return nil, errors.New("incorrectly encoded X and Y bit")
 		}
 
@@ -92,11 +99,19 @@ func NewPublicKeyFromBytes(b []byte) (*PublicKey, error) {
 	}
 }
 
-func (k *PublicKey) Bytes() []byte {
+func (k *PublicKey) Bytes(compressed bool) []byte {
 	x := k.X.Bytes()
 	if len(x) < 32 {
 		for i := 0; i < 32-len(x); i++ {
 			x = append([]byte{0}, x...)
+		}
+	}
+
+	if compressed {
+		if k.Y.Bit(0) != 0 { // If odd
+			return bytes.Join([][]byte{{0x03}, x}, nil)
+		} else { // If even
+			return bytes.Join([][]byte{{0x02}, x}, nil)
 		}
 	}
 
@@ -110,8 +125,8 @@ func (k *PublicKey) Bytes() []byte {
 	return bytes.Join([][]byte{{0x04}, x, y}, nil)
 }
 
-func (k *PublicKey) Hex() string {
-	return hex.EncodeToString(k.Bytes())
+func (k *PublicKey) Hex(compressed bool) string {
+	return hex.EncodeToString(k.Bytes(compressed))
 }
 
 func (k *PublicKey) Equals(pub *PublicKey) bool {

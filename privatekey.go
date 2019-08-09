@@ -77,7 +77,6 @@ func (k *PrivateKey) ECDH(pub *PublicKey) ([]byte, error) {
 
 	if sy.Bit(0) != 0 { // If odd
 		h.Write([]byte{0x03})
-
 	} else { // If even
 		h.Write([]byte{0x02})
 	}
