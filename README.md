@@ -1,5 +1,7 @@
 # eciesgo
 
+[![Codacy Badge](https://api.codacy.com/project/badge/Grade/435dca6d9f5c4193bff07f203196d107)](https://app.codacy.com/app/L11R/eciesgo?utm_source=github.com&utm_medium=referral&utm_content=L11R/eciesgo&utm_campaign=Badge_Grade_Dashboard)
+
 [![godoc widget]][godoc]
 
 Elliptic Curve Integrated Encryption Scheme for secp256k1, written in Go with **minimal** dependencies.
