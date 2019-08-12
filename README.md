@@ -1,6 +1,6 @@
 # eciesgo
 
-[![build status](https://travis-ci.org/L11R/eciesgo)](https://travis-ci.org/L11R/eciesgo)
+[![build status](https://travis-ci.org/L11R/eciesgo.svg)](https://travis-ci.org/L11R/eciesgo)
 [![godoc widget](https://godoc.org/github.com/L11R/eciesgo?status.svg)](https://godoc.org/github.com/L11R/eciesgo)
 [![Go Report](https://goreportcard.com/badge/github.com/L11R/eciesgo)](https://goreportcard.com/report/github.com/L11R/eciesgo)
 
