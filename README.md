@@ -1,6 +1,8 @@
 # eciesgo
 
-[![godoc widget]][godoc]
+[![build status](https://travis-ci.org/L11R/eciesgo)](https://travis-ci.org/L11R/eciesgo)
+[![godoc widget](https://godoc.org/github.com/L11R/eciesgo?status.svg)](https://godoc.org/github.com/L11R/eciesgo)
+[![Go Report](https://goreportcard.com/badge/github.com/L11R/eciesgo)](https://goreportcard.com/report/github.com/L11R/eciesgo)
 
 Elliptic Curve Integrated Encryption Scheme for secp256k1, written in Go with **minimal** dependencies.
 
@@ -38,6 +40,3 @@ func main() {
 	log.Printf("ciphertext decrypted: %s\n", string(plaintext))
 }
 ```
-
-[godoc]: https://godoc.org/github.com/L11R/eciesgo
-[godoc widget]: https://godoc.org/github.com/L11R/eciesgo?status.svg
