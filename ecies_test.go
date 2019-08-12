@@ -11,6 +11,11 @@ const testingReceiverPrivkeyHex = "f07918f3f256183758ebfafe608afdad311567fc255d4
 
 var testingReceiverPrivkey = []byte{51, 37, 145, 156, 66, 168, 189, 189, 176, 19, 177, 30, 148, 104, 25, 140, 155, 42, 248, 190, 121, 110, 16, 174, 143, 148, 72, 129, 94, 113, 219, 58}
 
+func TestGenerateKey(t *testing.T) {
+	_, err := GenerateKey()
+	assert.NoError(t, err)
+}
+
 func TestEncryptAndDecrypt(t *testing.T) {
 	privkey := NewPrivateKeyFromBytes(testingReceiverPrivkey)
 
@@ -23,17 +28,15 @@ func TestEncryptAndDecrypt(t *testing.T) {
 	assert.Equal(t, testingMessage, string(plaintext))
 }
 
-func TestNewPublicKeyFromHex(t *testing.T) {
-	_, err := NewPublicKeyFromHex(testingReceiverPubkeyHex)
+func TestPublicKeyDecompression(t *testing.T) {
+	// Generate public key
+	privkey, err := GenerateKey()
 	assert.NoError(t, err)
-}
 
-func TestNewPrivateKeyFromHex(t *testing.T) {
-	_, err := NewPrivateKeyFromHex(testingReceiverPrivkeyHex)
+	// Drop Y part and restore it
+	pubkey, err := NewPublicKeyFromHex(privkey.PublicKey.Hex(true))
 	assert.NoError(t, err)
-}
 
-func TestGenerateKey(t *testing.T) {
-	_, err := GenerateKey()
-	assert.NoError(t, err)
+	// Check that point is still at curve
+	assert.True(t, privkey.IsOnCurve(pubkey.X, pubkey.Y))
 }

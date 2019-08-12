@@ -68,7 +68,7 @@ func (k *PrivateKey) Bytes() []byte {
 
 // Hex returns private key bytes in hex form
 func (k *PrivateKey) Hex() string {
-	return hex.EncodeToString(k.D.Bytes())
+	return hex.EncodeToString(k.Bytes())
 }
 
 // ECDH derives shared secret with pre-applied KDF, can be used safely as encryption key

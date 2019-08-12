@@ -71,7 +71,7 @@ func NewPublicKeyFromBytes(b []byte) (*PublicKey, error) {
 			X:     x,
 			Y:     &y,
 		}, nil
-	case 0x04, 0x06, 0x07:
+	case 0x04:
 		if len(b) != 65 {
 			return nil, errors.New("cannot parse public key")
 		}
@@ -81,12 +81,6 @@ func NewPublicKeyFromBytes(b []byte) (*PublicKey, error) {
 
 		if x.Cmp(curve.Params().P) >= 0 || y.Cmp(curve.Params().P) >= 0 {
 			return nil, errors.New("cannot parse public key")
-		}
-
-		if b[0] == 0x06 || b[0] == 0x07 {
-			if (y.Bit(0) != 0) != (b[0] == 0x07) {
-				return nil, errors.New("cannot parse public key")
-			}
 		}
 
 		x3 := new(big.Int).Sqrt(x).Mul(x, x)
