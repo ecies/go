@@ -1,4 +1,4 @@
-module github.com/L11R/eciesgo
+module github.com/ecies/go
 
 go 1.12
 

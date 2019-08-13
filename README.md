@@ -1,22 +1,22 @@
 # eciesgo
 
-[![build status](https://travis-ci.org/L11R/eciesgo.svg)](https://travis-ci.org/L11R/eciesgo)
-[![godoc widget](https://godoc.org/github.com/L11R/eciesgo?status.svg)](https://godoc.org/github.com/L11R/eciesgo)
-[![Go Report](https://goreportcard.com/badge/github.com/L11R/eciesgo)](https://goreportcard.com/report/github.com/L11R/eciesgo)
+[![Build Status](https://travis-ci.org/ecies/go.svg)](https://travis-ci.org/ecies/go)
+[![GoDoc Widget](https://godoc.org/github.com/ecies/go?status.svg)](https://godoc.org/ecies/go)
+[![Go Report](https://goreportcard.com/badge/github.com/ecies/go)](https://goreportcard.com/report/github.com/ecies/go)
 
 Elliptic Curve Integrated Encryption Scheme for secp256k1, written in Go with **minimal** dependencies.
 
-This is the Go version of [eciespy](https://github.com/kigawas/eciespy) with a built-in class-like secp256k1 API, you may go there for detailed documentation of the mechanism under the hood.
+This is the Go version of [ecies/py](https://github.com/ecies/py) with a built-in class-like secp256k1 API, you may go there for detailed documentation of the mechanism under the hood.
 
 ## Install
-`go get github.com/L11R/eciesgo`
+`go get github.com/ecies/go`
 
 ## Quick Start
 ```go
 package main
 
 import (
-	"github.com/L11R/eciesgo"
+	"github.com/ecies/go"
 	"log"
 )
 
