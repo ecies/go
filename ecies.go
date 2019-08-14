@@ -12,11 +12,15 @@ import (
 
 // Encrypt encrypts a passed message with a receiver public key, returns ciphertext or encryption error
 func Encrypt(pubkey *PublicKey, msg []byte) ([]byte, error) {
+	var ct bytes.Buffer
+
 	// Generate ephemeral key
 	ek, err := GenerateKey()
 	if err != nil {
 		return nil, err
 	}
+
+	ct.Write(ek.PublicKey.Bytes(false))
 
 	// Derive shared secret
 	ss, err := ek.ECDH(pubkey)
@@ -35,16 +39,21 @@ func Encrypt(pubkey *PublicKey, msg []byte) ([]byte, error) {
 		return nil, errors.Wrap(err, "cannot read random bytes for nonce")
 	}
 
+	ct.Write(nonce)
+
 	aesgcm, err := cipher.NewGCMWithNonceSize(block, 16)
 	if err != nil {
 		return nil, errors.Wrap(err, "cannot create aes gcm")
 	}
 
 	ciphertext := aesgcm.Seal(nil, nonce, msg, nil)
-	tag := ciphertext[len(ciphertext)-aesgcm.NonceSize():]
-	ciphertext = ciphertext[:len(ciphertext)-len(tag)]
 
-	return bytes.Join([][]byte{ek.PublicKey.Bytes(false), nonce, tag, ciphertext}, nil), nil
+	tag := ciphertext[len(ciphertext)-aesgcm.NonceSize():]
+	ct.Write(tag)
+	ciphertext = ciphertext[:len(ciphertext)-len(tag)]
+	ct.Write(ciphertext)
+
+	return ct.Bytes(), nil
 }
 
 // Decrypt decrypts a passed message with a receiver private key, returns plaintext or decryption error
