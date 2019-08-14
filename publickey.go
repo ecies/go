@@ -133,6 +133,34 @@ func (k *PublicKey) Hex(compressed bool) string {
 	return hex.EncodeToString(k.Bytes(compressed))
 }
 
+// DecapsulateKEM decapsulates key by using Key Encapsulation Mechanism and returns symmetric key;
+// can be safely used as encryption key
+func (k *PublicKey) DecapsulateKEM(priv *PrivateKey) ([]byte, error) {
+	if priv == nil {
+		return nil, errors.New("public key is empty")
+	}
+
+	sx, sy := priv.Curve.ScalarMult(k.X, k.Y, priv.D.Bytes())
+
+	var secret bytes.Buffer
+	if sy.Bit(0) != 0 { // If odd
+		secret.Write([]byte{0x03})
+	} else { // If even
+		secret.Write([]byte{0x02})
+	}
+
+	// Sometimes shared secret is less than 32 bytes; Big Endian
+	l := len(priv.Curve.Params().P.Bytes())
+	for i := 0; i < l-len(sx.Bytes()); i++ {
+		secret.Write([]byte{0x00})
+	}
+
+	secret.Write(k.Bytes(false))
+	secret.Write(sx.Bytes())
+
+	return kdf(secret.Bytes())
+}
+
 // Equals compares two public keys with constant time (to resist timing attacks)
 func (k *PublicKey) Equals(pub *PublicKey) bool {
 	if subtle.ConstantTimeCompare(k.X.Bytes(), pub.X.Bytes()) == 1 &&

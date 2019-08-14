@@ -4,12 +4,10 @@ import (
 	"bytes"
 	"crypto/elliptic"
 	"crypto/rand"
-	"crypto/sha256"
 	"crypto/subtle"
 	"encoding/hex"
 	"github.com/fomichev/secp256k1"
 	"github.com/pkg/errors"
-	"golang.org/x/crypto/hkdf"
 	"math/big"
 )
 
@@ -73,8 +71,9 @@ func (k *PrivateKey) Hex() string {
 	return hex.EncodeToString(k.Bytes())
 }
 
-// ECDH derives shared secret with pre-applied KDF, can be used safely as encryption key
-func (k *PrivateKey) ECDH(pub *PublicKey) ([]byte, error) {
+// EncapsulateKEM encapsulates key by using Key Encapsulation Mechanism and returns symmetric key;
+// can be safely used as encryption key
+func (k *PrivateKey) EncapsulateKEM(pub *PublicKey) ([]byte, error) {
 	if pub == nil {
 		return nil, errors.New("public key is empty")
 	}
@@ -94,21 +93,15 @@ func (k *PrivateKey) ECDH(pub *PublicKey) ([]byte, error) {
 		secret.Write([]byte{0x00})
 	}
 
+	secret.Write(k.PublicKey.Bytes(false))
 	secret.Write(sx.Bytes())
-	secret.Write(pub.Bytes(false))
 
-	key := make([]byte, 32)
-	h := hkdf.New(sha256.New, secret.Bytes(), nil, nil)
-	if _, err := h.Read(key); err != nil {
-		return nil, errors.Wrap(err, "cannot read secret from HKDF reader")
-	}
-
-	return key, nil
+	return kdf(secret.Bytes())
 }
 
-// UnsafeECDH derives shared secret;
+// ECDH derives shared secret;
 // Must not be used as encryption key, it increases chances to perform successful key restoration attack
-func (k *PrivateKey) UnsafeECDH(pub *PublicKey) ([]byte, error) {
+func (k *PrivateKey) ECDH(pub *PublicKey) ([]byte, error) {
 	if pub == nil {
 		return nil, errors.New("public key is empty")
 	}

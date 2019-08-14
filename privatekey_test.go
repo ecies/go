@@ -31,9 +31,9 @@ func TestPrivateKey_UnsafeECDH(t *testing.T) {
 	privkey2, err := GenerateKey()
 	assert.NoError(t, err)
 
-	ss1, err := privkey1.UnsafeECDH(privkey2.PublicKey)
+	ss1, err := privkey1.ECDH(privkey2.PublicKey)
 	assert.NoError(t, err)
-	ss2, err := privkey2.UnsafeECDH(privkey1.PublicKey)
+	ss2, err := privkey2.ECDH(privkey1.PublicKey)
 	assert.NoError(t, err)
 
 	assert.Equal(t, subtle.ConstantTimeCompare(ss1, ss2), 1)
