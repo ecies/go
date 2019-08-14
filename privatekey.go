@@ -1,6 +1,7 @@
 package eciesgo
 
 import (
+	"bytes"
 	"crypto/elliptic"
 	"crypto/rand"
 	"crypto/sha256"
@@ -8,6 +9,7 @@ import (
 	"encoding/hex"
 	"github.com/fomichev/secp256k1"
 	"github.com/pkg/errors"
+	"golang.org/x/crypto/hkdf"
 	"math/big"
 )
 
@@ -79,23 +81,29 @@ func (k *PrivateKey) ECDH(pub *PublicKey) ([]byte, error) {
 
 	sx, sy := pub.Curve.ScalarMult(pub.X, pub.Y, k.D.Bytes())
 
-	// SHA-256 KDF
-	h := sha256.New()
-
+	var secret bytes.Buffer
 	if sy.Bit(0) != 0 { // If odd
-		h.Write([]byte{0x03})
+		secret.Write([]byte{0x03})
 	} else { // If even
-		h.Write([]byte{0x02})
+		secret.Write([]byte{0x02})
 	}
 
 	// Sometimes shared secret is less than 32 bytes; Big Endian
 	l := len(pub.Curve.Params().P.Bytes())
 	for i := 0; i < l-len(sx.Bytes()); i++ {
-		h.Write([]byte{0x00})
+		secret.Write([]byte{0x00})
 	}
 
-	h.Write(sx.Bytes())
-	return h.Sum(nil), nil
+	secret.Write(sx.Bytes())
+	secret.Write(pub.Bytes(false))
+
+	key := make([]byte, 32)
+	h := hkdf.New(sha256.New, secret.Bytes(), nil, nil)
+	if _, err := h.Read(key); err != nil {
+		return nil, errors.Wrap(err, "cannot read secret from HKDF reader")
+	}
+
+	return key, nil
 }
 
 // UnsafeECDH derives shared secret;
