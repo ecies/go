@@ -143,6 +143,8 @@ func (k *PublicKey) DecapsulateKEM(priv *PrivateKey) ([]byte, error) {
 	sx, sy := priv.Curve.ScalarMult(k.X, k.Y, priv.D.Bytes())
 
 	var secret bytes.Buffer
+	secret.Write(k.Bytes(false))
+
 	if sy.Bit(0) != 0 { // If odd
 		secret.Write([]byte{0x03})
 	} else { // If even
@@ -155,7 +157,6 @@ func (k *PublicKey) DecapsulateKEM(priv *PrivateKey) ([]byte, error) {
 		secret.Write([]byte{0x00})
 	}
 
-	secret.Write(k.Bytes(false))
 	secret.Write(sx.Bytes())
 
 	return kdf(secret.Bytes())
