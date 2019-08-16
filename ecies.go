@@ -23,7 +23,7 @@ func Encrypt(pubkey *PublicKey, msg []byte) ([]byte, error) {
 	ct.Write(ek.PublicKey.Bytes(false))
 
 	// Derive shared secret
-	ss, err := ek.EncapsulateKEM(pubkey)
+	ss, err := ek.Encapsulate(pubkey)
 	if err != nil {
 		return nil, err
 	}
@@ -74,7 +74,7 @@ func Decrypt(privkey *PrivateKey, msg []byte) ([]byte, error) {
 	msg = msg[65:]
 
 	// Derive shared secret
-	ss, err := ethPubkey.DecapsulateKEM(privkey)
+	ss, err := ethPubkey.Decapsulate(privkey)
 	if err != nil {
 		return nil, err
 	}

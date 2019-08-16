@@ -71,9 +71,9 @@ func (k *PrivateKey) Hex() string {
 	return hex.EncodeToString(k.Bytes())
 }
 
-// EncapsulateKEM encapsulates key by using Key Encapsulation Mechanism and returns symmetric key;
+// Encapsulate encapsulates key by using Key Encapsulation Mechanism and returns symmetric key;
 // can be safely used as encryption key
-func (k *PrivateKey) EncapsulateKEM(pub *PublicKey) ([]byte, error) {
+func (k *PrivateKey) Encapsulate(pub *PublicKey) ([]byte, error) {
 	if pub == nil {
 		return nil, errors.New("public key is empty")
 	}

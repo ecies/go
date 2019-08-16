@@ -133,9 +133,9 @@ func (k *PublicKey) Hex(compressed bool) string {
 	return hex.EncodeToString(k.Bytes(compressed))
 }
 
-// DecapsulateKEM decapsulates key by using Key Encapsulation Mechanism and returns symmetric key;
+// Decapsulate decapsulates key by using Key Encapsulation Mechanism and returns symmetric key;
 // can be safely used as encryption key
-func (k *PublicKey) DecapsulateKEM(priv *PrivateKey) ([]byte, error) {
+func (k *PublicKey) Decapsulate(priv *PrivateKey) ([]byte, error) {
 	if priv == nil {
 		return nil, errors.New("public key is empty")
 	}
