@@ -13,28 +13,40 @@ func TestNewPrivateKeyFromHex(t *testing.T) {
 
 func TestPrivateKey_Hex(t *testing.T) {
 	privkey, err := GenerateKey()
-	assert.NoError(t, err)
+	if !assert.NoError(t, err) {
+		return
+	}
 
 	privkey.Hex()
 }
 
 func TestPrivateKey_Equals(t *testing.T) {
 	privkey, err := GenerateKey()
-	assert.NoError(t, err)
+	if !assert.NoError(t, err) {
+		return
+	}
 
 	assert.True(t, privkey.Equals(privkey))
 }
 
 func TestPrivateKey_UnsafeECDH(t *testing.T) {
 	privkey1, err := GenerateKey()
-	assert.NoError(t, err)
+	if !assert.NoError(t, err) {
+		return
+	}
 	privkey2, err := GenerateKey()
-	assert.NoError(t, err)
+	if !assert.NoError(t, err) {
+		return
+	}
 
 	ss1, err := privkey1.ECDH(privkey2.PublicKey)
-	assert.NoError(t, err)
+	if !assert.NoError(t, err) {
+		return
+	}
 	ss2, err := privkey2.ECDH(privkey1.PublicKey)
-	assert.NoError(t, err)
+	if !assert.NoError(t, err) {
+		return
+	}
 
 	assert.Equal(t, subtle.ConstantTimeCompare(ss1, ss2), 1)
 }

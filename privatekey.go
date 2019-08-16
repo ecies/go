@@ -78,24 +78,23 @@ func (k *PrivateKey) EncapsulateKEM(pub *PublicKey) ([]byte, error) {
 		return nil, errors.New("public key is empty")
 	}
 
-	sx, sy := pub.Curve.ScalarMult(pub.X, pub.Y, k.D.Bytes())
-
 	var secret bytes.Buffer
 	secret.Write(k.PublicKey.Bytes(false))
 
-	if sy.Bit(0) != 0 { // If odd
-		secret.Write([]byte{0x03})
-	} else { // If even
-		secret.Write([]byte{0x02})
-	}
+	sx, sy := pub.Curve.ScalarMult(pub.X, pub.Y, k.D.Bytes())
+	secret.Write([]byte{0x04})
 
-	// Sometimes shared secret is less than 32 bytes; Big Endian
+	// Sometimes shared secret coordinates are less than 32 bytes; Big Endian
 	l := len(pub.Curve.Params().P.Bytes())
 	for i := 0; i < l-len(sx.Bytes()); i++ {
 		secret.Write([]byte{0x00})
 	}
-
 	secret.Write(sx.Bytes())
+
+	for i := 0; i < l-len(sy.Bytes()); i++ {
+		secret.Write([]byte{0x00})
+	}
+	secret.Write(sy.Bytes())
 
 	return kdf(secret.Bytes())
 }

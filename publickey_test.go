@@ -12,7 +12,9 @@ func TestNewPublicKeyFromHex(t *testing.T) {
 
 func TestPublicKey_Equals(t *testing.T) {
 	privkey, err := GenerateKey()
-	assert.NoError(t, err)
+	if !assert.NoError(t, err) {
+		return
+	}
 
 	assert.True(t, privkey.PublicKey.Equals(privkey.PublicKey))
 }
