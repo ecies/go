@@ -16,3 +16,11 @@ func kdf(secret []byte) (key []byte, err error) {
 
 	return key, nil
 }
+
+func zeroPad(b []byte, leigth int) []byte {
+	for i := 0; i < leigth-len(b); i++ {
+		b = append([]byte{0x00}, b...)
+	}
+
+	return b
+}
