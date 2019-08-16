@@ -74,11 +74,11 @@ func TestKEM(t *testing.T) {
 	k1 := NewPrivateKeyFromBytes(new(big.Int).SetInt64(2).Bytes())
 	k2 := NewPrivateKeyFromBytes(new(big.Int).SetInt64(3).Bytes())
 
-	sk1, err := k1.EncapsulateKEM(k2.PublicKey)
+	sk1, err := k1.Encapsulate(k2.PublicKey)
 	if !assert.NoError(t, err) {
 		return
 	}
-	sk2, err := k1.PublicKey.DecapsulateKEM(k2)
+	sk2, err := k1.PublicKey.Decapsulate(k2)
 	if !assert.NoError(t, err) {
 		return
 	}

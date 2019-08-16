@@ -133,9 +133,9 @@ func (k *PublicKey) Hex(compressed bool) string {
 	return hex.EncodeToString(k.Bytes(compressed))
 }
 
-// DecapsulateKEM decapsulates key by using Key Encapsulation Mechanism and returns symmetric key;
+// Decapsulate decapsulates key by using Key Encapsulation Mechanism and returns symmetric key;
 // can be safely used as encryption key
-func (k *PublicKey) DecapsulateKEM(priv *PrivateKey) ([]byte, error) {
+func (k *PublicKey) Decapsulate(priv *PrivateKey) ([]byte, error) {
 	if priv == nil {
 		return nil, errors.New("public key is empty")
 	}
@@ -148,15 +148,8 @@ func (k *PublicKey) DecapsulateKEM(priv *PrivateKey) ([]byte, error) {
 
 	// Sometimes shared secret coordinates are less than 32 bytes; Big Endian
 	l := len(priv.Curve.Params().P.Bytes())
-	for i := 0; i < l-len(sx.Bytes()); i++ {
-		secret.Write([]byte{0x00})
-	}
-	secret.Write(sx.Bytes())
-
-	for i := 0; i < l-len(sy.Bytes()); i++ {
-		secret.Write([]byte{0x00})
-	}
-	secret.Write(sy.Bytes())
+	secret.Write(zeroPad(sx.Bytes(), l))
+	secret.Write(zeroPad(sy.Bytes(), l))
 
 	return kdf(secret.Bytes())
 }
