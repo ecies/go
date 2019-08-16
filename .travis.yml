@@ -1,21 +1,9 @@
 language: go
 
 go:
-  - tip
-  - 1.12
+  - 1.10.x
   - 1.11.x
-
-os:
-  - linux
-  - osx
-
-matrix:
-  allow_failures:
-    - tip
-  fast_finish: true
-
-before_install:
-  - go get -v ./...
+  - 1.12.x
 
 script:
   # build test for supported platforms
@@ -23,7 +11,10 @@ script:
   - GOOS=darwin go build
   - GOOS=freebsd go build
   - GOOS=windows go build
-  - GOARCH=386 go build
+  - GOOS=js GOARCH=wasm go build
+
+  # run TestPublicKeyDecompression one hundred times
+  - go test -v -run TestPublicKeyDecompression -count 100
 
   # run tests on a standard platform
   - go test -v ./...
