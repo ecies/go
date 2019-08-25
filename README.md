@@ -1,7 +1,7 @@
 # eciesgo
 
 [![Build Status](https://travis-ci.com/ecies/go.svg)](https://travis-ci.com/ecies/go)
-[![GoDoc Widget](https://godoc.org/github.com/ecies/go?status.svg)](https://godoc.org/ecies/go)
+[![GoDoc Widget](https://godoc.org/github.com/ecies/go?status.svg)](https://godoc.org/github.com/ecies/go)
 [![Go Report](https://goreportcard.com/badge/github.com/ecies/go)](https://goreportcard.com/report/github.com/ecies/go)
 
 Elliptic Curve Integrated Encryption Scheme for secp256k1, written in Go with **minimal** dependencies.
