@@ -5,9 +5,10 @@ import (
 	"crypto/elliptic"
 	"crypto/subtle"
 	"encoding/hex"
-	"github.com/fomichev/secp256k1"
-	"github.com/pkg/errors"
+	"fmt"
 	"math/big"
+
+	"github.com/fomichev/secp256k1"
 )
 
 // PublicKey instance with nested elliptic.Curve interface (secp256k1 instance in our case)
@@ -20,7 +21,7 @@ type PublicKey struct {
 func NewPublicKeyFromHex(s string) (*PublicKey, error) {
 	b, err := hex.DecodeString(s)
 	if err != nil {
-		return nil, errors.Wrap(err, "cannot decode hex string")
+		return nil, fmt.Errorf("cannot decode hex string: %w", err)
 	}
 
 	return NewPublicKeyFromBytes(b)
@@ -34,7 +35,7 @@ func NewPublicKeyFromBytes(b []byte) (*PublicKey, error) {
 	switch b[0] {
 	case 0x02, 0x03:
 		if len(b) != 33 {
-			return nil, errors.New("cannot parse public key")
+			return nil, fmt.Errorf("cannot parse public key")
 		}
 
 		x := new(big.Int).SetBytes(b[1:])
@@ -47,7 +48,7 @@ func NewPublicKeyFromBytes(b []byte) (*PublicKey, error) {
 		}
 
 		if x.Cmp(curve.Params().P) >= 0 {
-			return nil, errors.New("cannot parse public key")
+			return nil, fmt.Errorf("cannot parse public key")
 		}
 
 		// y^2 = x^3 + b
@@ -63,7 +64,7 @@ func NewPublicKeyFromBytes(b []byte) (*PublicKey, error) {
 			y.Sub(curve.Params().P, &y)
 		}
 		if y.Bit(0) != ybit {
-			return nil, errors.New("incorrectly encoded X and Y bit")
+			return nil, fmt.Errorf("incorrectly encoded X and Y bit")
 		}
 
 		return &PublicKey{
@@ -73,19 +74,19 @@ func NewPublicKeyFromBytes(b []byte) (*PublicKey, error) {
 		}, nil
 	case 0x04:
 		if len(b) != 65 {
-			return nil, errors.New("cannot parse public key")
+			return nil, fmt.Errorf("cannot parse public key")
 		}
 
 		x := new(big.Int).SetBytes(b[1:33])
 		y := new(big.Int).SetBytes(b[33:])
 
 		if x.Cmp(curve.Params().P) >= 0 || y.Cmp(curve.Params().P) >= 0 {
-			return nil, errors.New("cannot parse public key")
+			return nil, fmt.Errorf("cannot parse public key")
 		}
 
 		x3 := new(big.Int).Sqrt(x).Mul(x, x)
 		if t := new(big.Int).Sqrt(y).Sub(y, x3.Add(x3, curve.Params().B)); t.IsInt64() && t.Int64() == 0 {
-			return nil, errors.New("cannot parse public key")
+			return nil, fmt.Errorf("cannot parse public key")
 		}
 
 		return &PublicKey{
@@ -94,7 +95,7 @@ func NewPublicKeyFromBytes(b []byte) (*PublicKey, error) {
 			Y:     y,
 		}, nil
 	default:
-		return nil, errors.New("cannot parse public key")
+		return nil, fmt.Errorf("cannot parse public key")
 	}
 }
 
@@ -137,7 +138,7 @@ func (k *PublicKey) Hex(compressed bool) string {
 // can be safely used as encryption key
 func (k *PublicKey) Decapsulate(priv *PrivateKey) ([]byte, error) {
 	if priv == nil {
-		return nil, errors.New("public key is empty")
+		return nil, fmt.Errorf("public key is empty")
 	}
 
 	var secret bytes.Buffer
