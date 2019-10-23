@@ -11,6 +11,8 @@ This is the Go version of [ecies/py](https://github.com/ecies/py) with a built-i
 ## Install
 `go get github.com/ecies/go`
 
+Go 1.13 is required cause `fmt.Errorf` is used to wrap errors.
+
 ## Quick Start
 ```go
 package main

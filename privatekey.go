@@ -6,9 +6,10 @@ import (
 	"crypto/rand"
 	"crypto/subtle"
 	"encoding/hex"
-	"github.com/fomichev/secp256k1"
-	"github.com/pkg/errors"
+	"fmt"
 	"math/big"
+
+	"github.com/fomichev/secp256k1"
 )
 
 // PrivateKey is an instance of secp256k1 private key with nested public key
@@ -23,7 +24,7 @@ func GenerateKey() (*PrivateKey, error) {
 
 	p, x, y, err := elliptic.GenerateKey(curve, rand.Reader)
 	if err != nil {
-		return nil, errors.Wrap(err, "cannot generate key pair")
+		return nil, fmt.Errorf("cannot generate key pair: %w", err)
 	}
 
 	return &PrivateKey{
@@ -40,7 +41,7 @@ func GenerateKey() (*PrivateKey, error) {
 func NewPrivateKeyFromHex(s string) (*PrivateKey, error) {
 	b, err := hex.DecodeString(s)
 	if err != nil {
-		return nil, errors.Wrap(err, "cannot decode hex string")
+		return nil, fmt.Errorf("cannot decode hex string: %w", err)
 	}
 
 	return NewPrivateKeyFromBytes(b), nil
@@ -75,7 +76,7 @@ func (k *PrivateKey) Hex() string {
 // can be safely used as encryption key
 func (k *PrivateKey) Encapsulate(pub *PublicKey) ([]byte, error) {
 	if pub == nil {
-		return nil, errors.New("public key is empty")
+		return nil, fmt.Errorf("public key is empty")
 	}
 
 	var secret bytes.Buffer
@@ -96,7 +97,7 @@ func (k *PrivateKey) Encapsulate(pub *PublicKey) ([]byte, error) {
 // Must not be used as encryption key, it increases chances to perform successful key restoration attack
 func (k *PrivateKey) ECDH(pub *PublicKey) ([]byte, error) {
 	if pub == nil {
-		return nil, errors.New("public key is empty")
+		return nil, fmt.Errorf("public key is empty")
 	}
 
 	// Shared secret generation

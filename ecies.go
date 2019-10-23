@@ -5,9 +5,10 @@ import (
 	"crypto/aes"
 	"crypto/cipher"
 	"crypto/rand"
-	"github.com/fomichev/secp256k1"
-	"github.com/pkg/errors"
+	"fmt"
 	"math/big"
+
+	"github.com/fomichev/secp256k1"
 )
 
 // Encrypt encrypts a passed message with a receiver public key, returns ciphertext or encryption error
@@ -31,19 +32,19 @@ func Encrypt(pubkey *PublicKey, msg []byte) ([]byte, error) {
 	// AES encryption
 	block, err := aes.NewCipher(ss)
 	if err != nil {
-		return nil, errors.Wrap(err, "cannot create new aes block")
+		return nil, fmt.Errorf("cannot create new aes block: %w", err)
 	}
 
 	nonce := make([]byte, 16)
 	if _, err := rand.Read(nonce); err != nil {
-		return nil, errors.Wrap(err, "cannot read random bytes for nonce")
+		return nil, fmt.Errorf("cannot read random bytes for nonce: %w", err)
 	}
 
 	ct.Write(nonce)
 
 	aesgcm, err := cipher.NewGCMWithNonceSize(block, 16)
 	if err != nil {
-		return nil, errors.Wrap(err, "cannot create aes gcm")
+		return nil, fmt.Errorf("cannot create aes gcm: %w", err)
 	}
 
 	ciphertext := aesgcm.Seal(nil, nonce, msg, nil)
@@ -60,7 +61,7 @@ func Encrypt(pubkey *PublicKey, msg []byte) ([]byte, error) {
 func Decrypt(privkey *PrivateKey, msg []byte) ([]byte, error) {
 	// Message cannot be less than length of public key (65) + nonce (16) + tag (16)
 	if len(msg) <= (1 + 32 + 32 + 16 + 16) {
-		return nil, errors.New("invalid length of message")
+		return nil, fmt.Errorf("invalid length of message")
 	}
 
 	// Ephemeral sender public key
@@ -88,17 +89,17 @@ func Decrypt(privkey *PrivateKey, msg []byte) ([]byte, error) {
 
 	block, err := aes.NewCipher(ss)
 	if err != nil {
-		return nil, errors.Wrap(err, "cannot create new aes block")
+		return nil, fmt.Errorf("cannot create new aes block: %w", err)
 	}
 
 	gcm, err := cipher.NewGCMWithNonceSize(block, 16)
 	if err != nil {
-		return nil, errors.Wrap(err, "cannot create gcm cipher")
+		return nil, fmt.Errorf("cannot create gcm cipher: %w", err)
 	}
 
 	plaintext, err := gcm.Open(nil, nonce, ciphertext, nil)
 	if err != nil {
-		return nil, errors.Wrap(err, "cannot decrypt ciphertext")
+		return nil, fmt.Errorf("cannot decrypt ciphertext: %w", err)
 	}
 
 	return plaintext, nil
