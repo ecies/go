@@ -58,7 +58,9 @@ func NewPublicKeyFromBytes(b []byte) (*PublicKey, error) {
 		x3b.Mul(&x3b, x)
 		x3b.Add(&x3b, curve.Params().B)
 		x3b.Mod(&x3b, curve.Params().P)
-		y.ModSqrt(&x3b, curve.Params().P)
+		if z := y.ModSqrt(&x3b, curve.Params().P); z == nil {
+			return nil, fmt.Errorf("cannot parse public key")
+		}
 
 		if y.Bit(0) != ybit {
 			y.Sub(curve.Params().P, &y)
