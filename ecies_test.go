@@ -27,6 +27,8 @@ func TestGenerateKey(t *testing.T) {
 }
 
 // go test -benchmem -run=^$ -bench ^BenchmarkEncrypt$ github.com/ecies/go/v2
+// MacBook Pro (15-inch, 2017)
+// BenchmarkEncrypt-8           286           4316673 ns/op         1616494 B/op      18813 allocs/op
 func BenchmarkEncrypt(b *testing.B) {
 	privkey := NewPrivateKeyFromBytes(testingReceiverPrivkey)
 
