@@ -3,14 +3,15 @@ package eciesgo
 import (
 	"crypto/sha256"
 	"encoding/hex"
-	"github.com/stretchr/testify/assert"
-	"golang.org/x/crypto/hkdf"
 	"io"
 	"io/ioutil"
 	"math/big"
 	"net/http"
 	"net/url"
 	"testing"
+
+	"github.com/stretchr/testify/assert"
+	"golang.org/x/crypto/hkdf"
 )
 
 const testingMessage = "helloworld"
@@ -23,6 +24,21 @@ var testingReceiverPrivkey = []byte{51, 37, 145, 156, 66, 168, 189, 189, 176, 19
 func TestGenerateKey(t *testing.T) {
 	_, err := GenerateKey()
 	assert.NoError(t, err)
+}
+
+// go test -benchmem -run=^$ -bench ^BenchmarkEncrypt$ github.com/ecies/go/v2
+// MacBook Pro (15-inch, 2017)
+// BenchmarkEncrypt-8           286           4316673 ns/op         1616494 B/op      18813 allocs/op
+func BenchmarkEncrypt(b *testing.B) {
+	privkey := NewPrivateKeyFromBytes(testingReceiverPrivkey)
+
+	msg := []byte(`{"code":0,"msg":"ok","data":{"pageNumber":1,"pageSize":10,"total":0,"list":[],"realTotal":0}}{"code":0,"msg":"ok","data":{"pageNumber":1,"pageSize":10,"total":0,"list":[],"realTotal":0}}{"code":0,"msg":"ok","data":{"pageNumber":1,"pageSize":10,"total":0,"list":[],"realTotal":0}}`)
+	for i := 0; i < b.N; i++ {
+		_, err := Encrypt(privkey.PublicKey, msg)
+		if err != nil {
+			b.Fail()
+		}
+	}
 }
 
 func TestEncryptAndDecrypt(t *testing.T) {
