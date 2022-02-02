@@ -42,3 +42,24 @@ func main() {
 	log.Printf("ciphertext decrypted: %s\n", string(plaintext))
 }
 ```
+
+## Benchmarks
+With CGO:
+```
+goos: linux
+goarch: amd64
+pkg: github.com/ecies/go/v2
+cpu: AMD Ryzen 7 5700G with Radeon Graphics         
+BenchmarkEncrypt-16        12250             98122 ns/op            5185 B/op         61 allocs/op
+BenchmarkDecrypt-16        23934             50046 ns/op            4097 B/op         46 allocs/op
+```
+
+Without CGO:
+```
+goos: linux
+goarch: amd64
+pkg: github.com/ecies/go/v2
+cpu: AMD Ryzen 7 5700G with Radeon Graphics         
+BenchmarkEncrypt-16        10000            112632 ns/op            5655 B/op         68 allocs/op
+BenchmarkDecrypt-16        14038             85641 ns/op            4725 B/op         56 allocs/op
+```
