@@ -7,8 +7,6 @@ import (
 	"crypto/rand"
 	"fmt"
 	"math/big"
-
-	"github.com/fomichev/secp256k1"
 )
 
 // Encrypt encrypts a passed message with a receiver public key, returns ciphertext or encryption error
@@ -66,7 +64,7 @@ func Decrypt(privkey *PrivateKey, msg []byte) ([]byte, error) {
 
 	// Ephemeral sender public key
 	ethPubkey := &PublicKey{
-		Curve: secp256k1.SECP256K1(),
+		Curve: getCurve(),
 		X:     new(big.Int).SetBytes(msg[1:33]),
 		Y:     new(big.Int).SetBytes(msg[33:65]),
 	}

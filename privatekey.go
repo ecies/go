@@ -8,8 +8,6 @@ import (
 	"encoding/hex"
 	"fmt"
 	"math/big"
-
-	"github.com/fomichev/secp256k1"
 )
 
 // PrivateKey is an instance of secp256k1 private key with nested public key
@@ -20,7 +18,7 @@ type PrivateKey struct {
 
 // GenerateKey generates secp256k1 key pair
 func GenerateKey() (*PrivateKey, error) {
-	curve := secp256k1.SECP256K1()
+	curve := getCurve()
 
 	p, x, y, err := elliptic.GenerateKey(curve, rand.Reader)
 	if err != nil {
@@ -49,7 +47,7 @@ func NewPrivateKeyFromHex(s string) (*PrivateKey, error) {
 
 // NewPrivateKeyFromBytes decodes private key raw bytes, computes public key and returns PrivateKey instance
 func NewPrivateKeyFromBytes(priv []byte) *PrivateKey {
-	curve := secp256k1.SECP256K1()
+	curve := getCurve()
 	x, y := curve.ScalarBaseMult(priv)
 
 	return &PrivateKey{
