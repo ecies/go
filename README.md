@@ -1,6 +1,6 @@
 # eciesgo
 
-[![Build Status](https://travis-ci.com/ecies/go.svg)](https://travis-ci.com/ecies/go)
+![Go](https://github.com/ecies/go/actions/workflows/go.yml/badge.svg)
 [![GoDoc Widget](https://godoc.org/github.com/ecies/go?status.svg)](https://godoc.org/github.com/ecies/go)
 [![Go Report](https://goreportcard.com/badge/github.com/ecies/go)](https://goreportcard.com/report/github.com/ecies/go)
 
