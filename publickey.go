@@ -7,8 +7,6 @@ import (
 	"encoding/hex"
 	"fmt"
 	"math/big"
-
-	"github.com/fomichev/secp256k1"
 )
 
 // PublicKey instance with nested elliptic.Curve interface (secp256k1 instance in our case)
@@ -30,7 +28,7 @@ func NewPublicKeyFromHex(s string) (*PublicKey, error) {
 // NewPublicKeyFromBytes decodes public key raw bytes and returns PublicKey instance;
 // Supports both compressed and uncompressed public keys
 func NewPublicKeyFromBytes(b []byte) (*PublicKey, error) {
-	curve := secp256k1.SECP256K1()
+	curve := getCurve()
 
 	switch b[0] {
 	case 0x02, 0x03:

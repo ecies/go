@@ -18,17 +18,29 @@ jobs:
       with:
         go-version: 1.17
 
-    - name: Build
+    - name: Build w/ CGO
       run: GOOS=linux go build
+
+    - name: Build w/o CGO
+      run: GOOS=linux CGO_ENABLED=0 go build
 
     - name: WASM Build
       run: GOOS=js GOARCH=wasm go build
 
-    - name: Test decompression
+    - name: Test decompression w/ CGO
       run: go test -v -run TestPublicKeyDecompression -count 100
 
-    - name: Test
+    - name: Test decompression w/o CGO
+      run: CGO_ENABLED=0 go test -v -run TestPublicKeyDecompression -count 100
+
+    - name: Test w/ CGO
       run: go test -v ./...
 
-    - name: Test race
+    - name: Test w/o CGO
+      run: CGO_ENABLED=0 go test -v ./...
+
+    - name: Test race w/ CGO
       run: go test -race -v ./...
+
+    - name: Test race w/o CGO
+      run: go test -tags=ecies_test_race -race -v ./...
