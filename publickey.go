@@ -159,10 +159,7 @@ func (k *PublicKey) Decapsulate(priv *PrivateKey) ([]byte, error) {
 
 // Equals compares two public keys with constant time (to resist timing attacks)
 func (k *PublicKey) Equals(pub *PublicKey) bool {
-	if subtle.ConstantTimeCompare(k.X.Bytes(), pub.X.Bytes()) == 1 &&
-		subtle.ConstantTimeCompare(k.Y.Bytes(), pub.Y.Bytes()) == 1 {
-		return true
-	}
-
-	return false
+	eqX := subtle.ConstantTimeCompare(k.X.Bytes(), pub.X.Bytes()) == 1
+	eqY := subtle.ConstantTimeCompare(k.Y.Bytes(), pub.Y.Bytes()) == 1
+	return eqX && eqY
 }
