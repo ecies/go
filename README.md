@@ -9,16 +9,18 @@ Elliptic Curve Integrated Encryption Scheme for secp256k1, written in Go with **
 This is the Go version of [ecies/py](https://github.com/ecies/py) with a built-in class-like secp256k1 API, you may go there for detailed documentation of the mechanism under the hood.
 
 ## Install
-`go get github.com/ecies/go`
+`go get github.com/ecies/go/v2`
 
 Go 1.13 is required cause `fmt.Errorf` is used to wrap errors.
+
+> ⚠️ Please use version 2.0.3 and later. It's much faster and safer.
 
 ## Quick Start
 ```go
 package main
 
 import (
-	ecies "github.com/ecies/go"
+	ecies "github.com/ecies/go/v2"
 	"log"
 )
 
