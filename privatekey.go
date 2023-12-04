@@ -77,6 +77,10 @@ func (k *PrivateKey) Encapsulate(pub *PublicKey) ([]byte, error) {
 		return nil, fmt.Errorf("public key is empty")
 	}
 
+	if !k.Curve.IsOnCurve(pub.X, pub.Y) {
+		return nil, fmt.Errorf("invalid public key")
+	}
+
 	var secret bytes.Buffer
 	secret.Write(k.PublicKey.Bytes(false))
 
@@ -96,6 +100,10 @@ func (k *PrivateKey) Encapsulate(pub *PublicKey) ([]byte, error) {
 func (k *PrivateKey) ECDH(pub *PublicKey) ([]byte, error) {
 	if pub == nil {
 		return nil, fmt.Errorf("public key is empty")
+	}
+
+	if !k.Curve.IsOnCurve(pub.X, pub.Y) {
+		return nil, fmt.Errorf("invalid public key")
 	}
 
 	// Shared secret generation

@@ -137,8 +137,12 @@ func (k *PublicKey) Hex(compressed bool) string {
 // Decapsulate decapsulates key by using Key Encapsulation Mechanism and returns symmetric key;
 // can be safely used as encryption key
 func (k *PublicKey) Decapsulate(priv *PrivateKey) ([]byte, error) {
+	if !k.Curve.IsOnCurve(k.X, k.Y) {
+		return nil, fmt.Errorf("invalid public key")
+	}
+
 	if priv == nil {
-		return nil, fmt.Errorf("public key is empty")
+		return nil, fmt.Errorf("private key is empty")
 	}
 
 	var secret bytes.Buffer
