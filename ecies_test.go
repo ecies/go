@@ -197,3 +197,19 @@ func TestEncryptAgainstPythonVersion(t *testing.T) {
 
 	assert.Equal(t, string(plaintext), testingMessage)
 }
+
+func BenchmarkEncryptAndDecrypt(b *testing.B) {
+	privkey := NewPrivateKeyFromBytes(testingReceiverPrivkey)
+
+	for i := 0; i < b.N; i++ {
+		ciphertext, err := Encrypt(privkey.PublicKey, []byte(testingMessage))
+		if err != nil {
+			b.Fatal(err)
+		}
+
+		_, err = Decrypt(privkey, ciphertext)
+		if err != nil {
+			b.Fatal(err)
+		}
+	}
+}
