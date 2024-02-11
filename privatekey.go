@@ -127,9 +127,5 @@ func (k *PrivateKey) ECDH(pub *PublicKey) ([]byte, error) {
 
 // Equals compares two private keys with constant time (to resist timing attacks)
 func (k *PrivateKey) Equals(priv *PrivateKey) bool {
-	if subtle.ConstantTimeCompare(k.D.Bytes(), priv.D.Bytes()) == 1 {
-		return true
-	}
-
-	return false
+	return subtle.ConstantTimeCompare(k.D.Bytes(), priv.D.Bytes()) == 1
 }
