@@ -2,15 +2,19 @@ package eciesgo
 
 import (
 	"bytes"
-	"crypto/aes"
-	"crypto/cipher"
-	"crypto/rand"
 	"fmt"
 	"math/big"
 )
 
+type Config struct {
+	symmetricAlgorithm   string
+	symmetricNonceLength int
+}
+
+var DEFAULT_CONFIG = Config{symmetricAlgorithm: "aes-256-gcm", symmetricNonceLength: 16}
+
 // Encrypt encrypts a passed message with a receiver public key, returns ciphertext or encryption error
-func Encrypt(pubkey *PublicKey, msg []byte) ([]byte, error) {
+func EncryptConf(pubkey *PublicKey, msg []byte, config Config) ([]byte, error) {
 	var ct bytes.Buffer
 
 	// Generate ephemeral key
@@ -27,38 +31,23 @@ func Encrypt(pubkey *PublicKey, msg []byte) ([]byte, error) {
 		return nil, err
 	}
 
-	// AES encryption
-	block, err := aes.NewCipher(ss)
+	// Symmetrical encryption
+	ciphertext, err := EncryptSymm(ss, msg, config)
 	if err != nil {
-		return nil, fmt.Errorf("cannot create new aes block: %w", err)
+		return nil, err
 	}
 
-	nonce := make([]byte, 16)
-	if _, err := rand.Read(nonce); err != nil {
-		return nil, fmt.Errorf("cannot read random bytes for nonce: %w", err)
-	}
-
-	ct.Write(nonce)
-
-	aesgcm, err := cipher.NewGCMWithNonceSize(block, 16)
-	if err != nil {
-		return nil, fmt.Errorf("cannot create aes gcm: %w", err)
-	}
-
-	ciphertext := aesgcm.Seal(nil, nonce, msg, nil)
-
-	tag := ciphertext[len(ciphertext)-aesgcm.NonceSize():]
-	ct.Write(tag)
-	ciphertext = ciphertext[:len(ciphertext)-len(tag)]
 	ct.Write(ciphertext)
-
 	return ct.Bytes(), nil
 }
 
+func Encrypt(pubkey *PublicKey, msg []byte) ([]byte, error) {
+	return EncryptConf(pubkey, msg, DEFAULT_CONFIG)
+}
+
 // Decrypt decrypts a passed message with a receiver private key, returns plaintext or decryption error
-func Decrypt(privkey *PrivateKey, msg []byte) ([]byte, error) {
-	// Message cannot be less than length of public key (65) + nonce (16) + tag (16)
-	if len(msg) <= (1 + 32 + 32 + 16 + 16) {
+func DecryptConf(privkey *PrivateKey, msg []byte, config Config) ([]byte, error) {
+	if len(msg) <= (1 + 32 + 32) {
 		return nil, fmt.Errorf("invalid length of message")
 	}
 
@@ -69,36 +58,24 @@ func Decrypt(privkey *PrivateKey, msg []byte) ([]byte, error) {
 		Y:     new(big.Int).SetBytes(msg[33:65]),
 	}
 
-	// Shift message
-	msg = msg[65:]
-
 	// Derive shared secret
 	ss, err := ethPubkey.Decapsulate(privkey)
 	if err != nil {
 		return nil, err
 	}
 
-	// AES decryption part
-	nonce := msg[:16]
-	tag := msg[16:32]
+	// Shift message
+	msg = msg[65:]
 
-	// Create Golang-accepted ciphertext
-	ciphertext := bytes.Join([][]byte{msg[32:], tag}, nil)
-
-	block, err := aes.NewCipher(ss)
+	// Symmetrical decryption
+	plaintext, err := DecryptSymm(ss, msg, config)
 	if err != nil {
-		return nil, fmt.Errorf("cannot create new aes block: %w", err)
-	}
-
-	gcm, err := cipher.NewGCMWithNonceSize(block, 16)
-	if err != nil {
-		return nil, fmt.Errorf("cannot create gcm cipher: %w", err)
-	}
-
-	plaintext, err := gcm.Open(nil, nonce, ciphertext, nil)
-	if err != nil {
-		return nil, fmt.Errorf("cannot decrypt ciphertext: %w", err)
+		return nil, err
 	}
 
 	return plaintext, nil
+}
+
+func Decrypt(privkey *PrivateKey, msg []byte) ([]byte, error) {
+	return DecryptConf(privkey, msg, DEFAULT_CONFIG)
 }

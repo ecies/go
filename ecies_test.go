@@ -56,20 +56,27 @@ func BenchmarkDecrypt(b *testing.B) {
 	}
 }
 
-func TestEncryptAndDecrypt(t *testing.T) {
+func testEncryptAndDecryptParameters(conf Config, t *testing.T) {
 	privkey := NewPrivateKeyFromBytes(testingReceiverPrivkey)
 
-	ciphertext, err := Encrypt(privkey.PublicKey, []byte(testingMessage))
+	ciphertext, err := EncryptConf(privkey.PublicKey, []byte(testingMessage), conf)
 	if !assert.NoError(t, err) {
 		return
 	}
 
-	plaintext, err := Decrypt(privkey, ciphertext)
+	plaintext, err := DecryptConf(privkey, ciphertext, conf)
 	if !assert.NoError(t, err) {
 		return
 	}
 
 	assert.Equal(t, testingMessage, string(plaintext))
+}
+
+func TestEncryptAndDecrypt(t *testing.T) {
+	testEncryptAndDecryptParameters(DEFAULT_CONFIG, t)
+	testEncryptAndDecryptParameters(Config{symmetricAlgorithm: "aes-256-gcm", symmetricNonceLength: 12}, t)
+	testEncryptAndDecryptParameters(Config{symmetricAlgorithm: "aes-256-gcm", symmetricNonceLength: 16}, t)
+	testEncryptAndDecryptParameters(Config{symmetricAlgorithm: "xchacha20"}, t)
 }
 
 func TestPublicKeyDecompression(t *testing.T) {
