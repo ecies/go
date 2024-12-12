@@ -142,7 +142,7 @@ func TestDecryptAgainstPythonVersion(t *testing.T) {
 
 	defer resp.Body.Close()
 
-	if !assert.Equal(t, http.StatusOK, resp.StatusCode) {
+	if !assert.Equal(t, http.StatusCreated, resp.StatusCode) {
 		return
 	}
 
@@ -186,7 +186,7 @@ func TestEncryptAgainstPythonVersion(t *testing.T) {
 
 	defer resp.Body.Close()
 
-	if !assert.Equal(t, http.StatusOK, resp.StatusCode) {
+	if !assert.Equal(t, http.StatusCreated, resp.StatusCode) {
 		return
 	}
 
