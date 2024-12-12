@@ -1,5 +1,4 @@
 //go:build cgo && !ecies_test_race
-// +build cgo,!ecies_test_race
 
 package eciesgo
 

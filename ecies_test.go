@@ -4,7 +4,6 @@ import (
 	"crypto/sha256"
 	"encoding/hex"
 	"io"
-	"io/ioutil"
 	"math/big"
 	"net/http"
 	"net/url"
@@ -140,13 +139,15 @@ func TestDecryptAgainstPythonVersion(t *testing.T) {
 		return
 	}
 
-	defer resp.Body.Close()
+	defer func() {
+		_ = resp.Body.Close()
+	}()
 
 	if !assert.Equal(t, http.StatusCreated, resp.StatusCode) {
 		return
 	}
 
-	hexBytes, err := ioutil.ReadAll(resp.Body)
+	hexBytes, err := io.ReadAll(resp.Body)
 	if !assert.NoError(t, err) {
 		return
 	}
@@ -184,13 +185,15 @@ func TestEncryptAgainstPythonVersion(t *testing.T) {
 		return
 	}
 
-	defer resp.Body.Close()
+	defer func() {
+		_ = resp.Body.Close()
+	}()
 
 	if !assert.Equal(t, http.StatusCreated, resp.StatusCode) {
 		return
 	}
 
-	plaintext, err := ioutil.ReadAll(resp.Body)
+	plaintext, err := io.ReadAll(resp.Body)
 	if !assert.NoError(t, err) {
 		return
 	}

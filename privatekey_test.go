@@ -2,8 +2,9 @@ package eciesgo
 
 import (
 	"crypto/subtle"
-	"github.com/stretchr/testify/assert"
 	"testing"
+
+	"github.com/stretchr/testify/assert"
 )
 
 const privkeyBase = "f0e5b2c3ba4df3fdb3ecea30d0e60c4e4a31d1ba928f51783ae18bbd3cada572"
