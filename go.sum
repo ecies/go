@@ -2,8 +2,8 @@ github.com/davecgh/go-spew v1.1.1 h1:vj9j/u1bqnvCEfJOwUhtlOARqs3+rkHYY13jYWTU97c
 github.com/davecgh/go-spew v1.1.1/go.mod h1:J7Y8YcW2NihsgmVo/mv3lAwl/skON4iLHjSsI+c5H38=
 github.com/decred/dcrd/dcrec/secp256k1/v4 v4.3.0 h1:rpfIENRNNilwHwZeG5+P150SMrnNEcHYvcCuK6dPZSg=
 github.com/decred/dcrd/dcrec/secp256k1/v4 v4.3.0/go.mod h1:v57UDF4pDQJcEfFUCRop3lJL149eHGSe9Jvczhzjo/0=
-github.com/ethereum/go-ethereum v1.14.12 h1:8hl57x77HSUo+cXExrURjU/w1VhL+ShCTJrTwcCQSe4=
-github.com/ethereum/go-ethereum v1.14.12/go.mod h1:RAC2gVMWJ6FkxSPESfbshrcKpIokgQKsVKmAuqdekDY=
+github.com/ethereum/go-ethereum v1.14.13 h1:L81Wmv0OUP6cf4CW6wtXsr23RUrDhKs2+Y9Qto+OgHU=
+github.com/ethereum/go-ethereum v1.14.13/go.mod h1:RAC2gVMWJ6FkxSPESfbshrcKpIokgQKsVKmAuqdekDY=
 github.com/kr/pretty v0.2.1/go.mod h1:ipq/a2n7PKx3OHsz4KJII5eveXtPO4qwEXGdVfWzfnI=
 github.com/kr/pretty v0.3.1 h1:flRD4NNwYAUpkphVc1HcthR4KEIFJ65n8Mw5qdRn3LE=
 github.com/kr/pretty v0.3.1/go.mod h1:hoEshYVHaxMs3cyo3Yncou5ZscifuDolrwPKZanG3xk=
