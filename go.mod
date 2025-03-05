@@ -2,7 +2,7 @@ module github.com/ecies/go/v2
 
 require (
 	github.com/decred/dcrd/dcrec/secp256k1/v4 v4.4.0
-	github.com/ethereum/go-ethereum v1.15.2
+	github.com/ethereum/go-ethereum v1.15.5
 	github.com/stretchr/testify v1.10.0
 	golang.org/x/crypto v0.33.0
 )
@@ -15,5 +15,4 @@ require (
 )
 
 go 1.22.0
-
 toolchain go1.23.4
