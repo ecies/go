@@ -9,6 +9,7 @@ Elliptic Curve Integrated Encryption Scheme for secp256k1, written in Go with **
 This is the Go version of [ecies/py](https://github.com/ecies/py) with a built-in class-like secp256k1 API, you may go there for detailed documentation of the mechanism under the hood.
 
 ## Install
+
 `go get github.com/ecies/go/v2`
 
 Go 1.22 is required since 2.0.10.
@@ -16,6 +17,7 @@ Go 1.22 is required since 2.0.10.
 > ⚠️ Please use version 2.0.3 and later. It's much faster and safer.
 
 ## Quick Start
+
 ```go
 package main
 
@@ -51,7 +53,7 @@ With CGO:
 goos: linux
 goarch: amd64
 pkg: github.com/ecies/go/v2
-cpu: AMD Ryzen 7 5700G with Radeon Graphics         
+cpu: AMD Ryzen 7 5700G with Radeon Graphics
 BenchmarkEncrypt-16        12250             98122 ns/op            5185 B/op         61 allocs/op
 BenchmarkDecrypt-16        23934             50046 ns/op            4097 B/op         46 allocs/op
 ```
@@ -61,7 +63,7 @@ Without CGO:
 goos: linux
 goarch: amd64
 pkg: github.com/ecies/go/v2
-cpu: AMD Ryzen 7 5700G with Radeon Graphics         
+cpu: AMD Ryzen 7 5700G with Radeon Graphics
 BenchmarkEncrypt-16        10000            112632 ns/op            5655 B/op         68 allocs/op
 BenchmarkDecrypt-16        14038             85641 ns/op            4725 B/op         56 allocs/op
 ```
