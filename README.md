@@ -45,6 +45,26 @@ func main() {
 }
 ```
 
+## CLI
+`valicrypter` (validator encrypter) is a minimal command line tool for encrypting to a public key
+and decrypting with a private key. Input is passed as an argument, output goes to stdout.
+
+```sh
+go install github.com/chronicleprotocol/ecies/cmd/valicrypter@latest
+```
+
+```sh
+# Encrypt a plaintext to a recipient, ciphertext hex to stdout
+valicrypter -r <pubkey-hex> 'THIS IS THE TEST' > ciphertext.hex
+
+# Decrypt a ciphertext hex, plaintext to stdout
+valicrypter -d -i <privkey-hex> "$(cat ciphertext.hex)"
+```
+
+The recipient public key is hex, either 33-byte compressed or 65-byte uncompressed. Keys may be
+given with or without a `0x` prefix. Note that `-i` puts the private key into your shell history and
+process listing.
+
 ## Benchmarks
 With CGO:
 ```

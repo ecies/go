@@ -1,2 +1,8 @@
 # Goland
 .idea
+
+# Binaries
+/valicrypter
+
+# Agents
+.claude/
