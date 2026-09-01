@@ -1,0 +1,4 @@
+* @chronicleprotocol/offchain @pmerkleplant
+
+go.mod @chronicleprotocol/offchain @pmerkleplant
+go.sum @chronicleprotocol/offchain @pmerkleplant
