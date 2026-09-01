@@ -1,0 +1,72 @@
+name: godepupdate
+
+on:
+  workflow_call:
+  schedule:
+    - cron: "0 3 1 1,4,7,10 *" # 1st of Jan, Apr, Jul, Oct at 3am UTC
+
+permissions:
+  contents: read
+
+jobs:
+  open-issue:
+    runs-on: ubuntu-latest
+    permissions:
+      issues: write
+      contents: read
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        with:
+          persist-credentials: false
+      - uses: actions/setup-go@4a3601121dd01d1626a1e23e37211e3254c1c06c # v6.4.0
+        with:
+          go-version-file: go.mod
+      - name: Build dependency report and open issue
+        run: |
+          # Build dependency table from go list.
+          table="| Dependency | Current | Latest | Updated | Notes |
+          |---|---|---|---|---|"
+
+          while IFS= read -r row; do
+            mod=$(echo "$row" | jq -r '.Path')
+            version=$(echo "$row" | jq -r '.Version')
+            latest=$(echo "$row" | jq -r '.Update.Version // empty')
+            if [ -z "$latest" ]; then
+              latest="$version"
+              updated="up to date"
+            else
+              updated="[ ]"
+            fi
+            table="${table}
+          | \`${mod}\` | ${version} | ${latest} | ${updated} | |"
+          done < <(go list -m -u -json all | jq -c 'select(.Main != true and .Indirect != true)')
+
+          # Resolve assignees from CODEOWNERS.
+          assignees=""
+          if [ -f CODEOWNERS ]; then
+            owners=$(grep -E '^\s*go\.mod\s' CODEOWNERS | head -1 | awk '{$1=""; print}' | tr -d '@')
+            if [ -n "$owners" ]; then
+              assignees=$(echo "$owners" | xargs -n1 | paste -sd, -)
+            fi
+          fi
+
+          # Write issue body to file to avoid eval.
+          cat > /tmp/issue-body.md <<BODY
+          Quarterly dependency update is due.
+
+          ${table}
+
+          Update each dependency, check it off, and add notes where relevant.
+          BODY
+
+          args=(--title "godepupdate: Quarterly dependency update"
+                --body-file /tmp/issue-body.md)
+
+          if [ -n "$assignees" ]; then
+            args+=(--assignee "$assignees")
+          fi
+
+          gh issue create "${args[@]}"
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GH_REPO: ${{ github.repository }}

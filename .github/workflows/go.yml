@@ -44,3 +44,18 @@ jobs:
 
     - name: Test race w/o CGO
       run: go test -tags=ecies_test_race -race -v ./...
+
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@ee0669bd1cc54295c223e0bb666b733df41de1c5
+
+    - name: Set up Go
+      uses: actions/setup-go@bfdd3570ce990073878bf10f6b2d79082de49492
+      with:
+        go-version-file: go.mod
+
+    - name: Lint
+      uses: golangci/golangci-lint-action@ba0d7d2ec06a0ea1cb5fa41b2e4a3ab91d21278a # v9.3.0
+      with:
+        version: v2.13.2
